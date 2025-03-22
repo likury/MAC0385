@@ -1,16 +1,14 @@
-from typing import Optional, Tuple, List
+import argparse
+from typing import Optional, List
 
 class Node:
-    """Represents a node in the tree with jump pointers for efficient ancestor queries."""
     def __init__(self, val: Optional[int], parent: Optional["Node"], depth: int):
         self.val = val
         self.parent = parent
         self.depth = depth
         self.jump: Optional["Node"] = None
 
-
 class Tree:
-    """Handles tree operations such as adding leaves and ancestor queries."""
     def __init__(self, root: Node):
         self.root = root
 
@@ -23,7 +21,6 @@ class Tree:
             u.jump = v
 
     def level_ancestor(self, k: int, u: Node) -> Node:
-        """Finds the k-th ancestor of node u."""
         target_depth = u.depth - k
         while u.depth != target_depth:
             if u.jump and u.jump.depth >= target_depth:
@@ -33,7 +30,6 @@ class Tree:
         return u
 
     def lowest_common_ancestor(self, u: Node, v: Node) -> Node:
-        """Finds the lowest common ancestor (LCA) of nodes u and v."""
         if u.depth > v.depth:
             u, v = v, u
         v = self.level_ancestor(v.depth - u.depth, v)
@@ -46,9 +42,7 @@ class Tree:
                 u, v = u.parent, v.parent
         return u.parent
 
-
 class Deque:
-    """Represents a double-ended queue (deque) implemented using a tree structure."""
     def __init__(self, tree: Tree):
         self.tree = tree
         self.front: Optional[Node] = None
@@ -126,9 +120,7 @@ class Deque:
     def swap(self):
         self.front, self.back = self.back, self.front
 
-
 class DequeManager:
-    """Manages multiple deques and processes commands from an input file."""
     def __init__(self):
         root = Node(None, None, 0)
         root.jump = root
@@ -180,18 +172,22 @@ class DequeManager:
 
         return None
 
-    def process_file(self, input_file: str, output_file: str):
+    def process_file(self, input_file: str):
         with open(input_file, 'r') as file:
             commands = file.read().strip().split('\n')
 
         results = [self.process_command(command) for command in commands]
         results = [res for res in results if res is not None]
 
-        with open(output_file, 'w') as out_file:
-            for line in results:
-                out_file.write(line + '\n')
+        for line in results:
+            print(line)
 
 
-# Example usage:
-manager = DequeManager()
-manager.process_file('input.txt', 'output.txt')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Process deque operations from a file.")
+    parser.add_argument("input_file", help="Path to the input file containing operations.")
+
+    args = parser.parse_args()
+
+    manager = DequeManager()
+    manager.process_file(args.input_file)
